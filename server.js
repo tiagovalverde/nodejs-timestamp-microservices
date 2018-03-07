@@ -9,6 +9,23 @@ var app = module.exports = express()
 app.use(body_parser.json())
 app.use(cors())
 
+// front end index setup
+// Set the view directory to /views
+app.set("views", __dirname + "/views");
+// Let's use the pug templating language
+app.set("view engine", "pug");
+app.get("/", function (request, response) {
+    response.render("index", {
+        message: "I love anime"
+    });
+});
+
+
+
+
+
+
+
 // GET - JSON return that formats unix and unix timestamps
 app.get('/:timestamp', function (req, res, next) {
     var timestamp = req.params.timestamp
