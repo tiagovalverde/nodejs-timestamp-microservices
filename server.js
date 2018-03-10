@@ -4,7 +4,7 @@ var body_parser = require('body-parser')
 var cors = require('cors')
 var path = require('path')
 var PORT = process.env.PORT || 3300
-
+var moment = require('moment')
 // instanciate express and his dependencies
 var app = module.exports = express()
 app.use(body_parser.json())
@@ -32,7 +32,7 @@ app.get("/", function (request, response) {
 // GET - JSON return that formats unix and unix timestamps
 app.get('/:timestamp', function (req, res, next) {
     var timestamp = req.params.timestamp
-    res.json(getJsonTimestamp(timestamp))
+    res.json(momentParser(timestamp))
 
 })
 
@@ -41,33 +41,24 @@ app.listen(PORT, function (err, res) {
     console.log('Its Working on port:' + PORT)
 })
 
-// helper functions
-function getNaturalDateFormat(date) {
-    //date.getMonth() start at 0 for january
-    var months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'Obtober', 'November', 'December'];
-    return months[date.getMonth()] + ' ' + date.getDate() + ', ' + date.getFullYear()
-}
-
-function getJsonTimestamp(timestamp) {
-    var date
-
-    //json object to send back
-    var json_timestamp = {
+function momentParser(date) {
+    let json_timestamp = {
         unix: null,
         natural: null
     }
 
-    // natural date provided
-    if (isNaN(parseInt(timestamp))) {
-        date = new Date(timestamp)
-    } else { // unix date provided
-        date = new Date(parseInt(timestamp))
+    // if received unix timestamp
+    if (+date >= 0 && moment.unix(+date).format("MMMM D, YYYY").isValid) {
+        json_timestamp.unix = +date,
+            json_timestamp.natural =
+            moment.unix(+date).format("MMMM D, YYYY")
     }
 
-    //test if new date object is valid
-    if (!isNaN(date.getTime())) {
-        json_timestamp.unix = date.getTime()
-        json_timestamp.natural = getNaturalDateFormat(date);
+    // if natural date received
+    if (isNaN(+date) && moment(date, "MMMM D, YYYY").isValid()) {
+        json_timestamp.natural = date;
+        json_timestamp.unix = moment(date, "MMMM D, YYYY");
     }
+
     return json_timestamp
 }
