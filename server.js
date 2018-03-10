@@ -2,6 +2,7 @@
 var express = require('express')
 var body_parser = require('body-parser')
 var cors = require('cors')
+var path = require('path')
 var PORT = process.env.PORT || 3300
 
 // instanciate express and his dependencies
@@ -9,21 +10,23 @@ var app = module.exports = express()
 app.use(body_parser.json())
 app.use(cors())
 
-// front end index setup
-// Set the view directory to /views
-app.set("views", __dirname + "/views");
-// Let's use the pug templating language
+//Set Public Folder
+app.use(express.static(path.join(__dirname, 'public')))
+
+
+// load view engine
+app.set('views', path.join(__dirname, 'views'))
+//app.set("views", __dirname + "/views");
 app.set("view engine", "pug");
+
+//home route
 app.get("/", function (request, response) {
+
     response.render("index", {
-        message: "I love anime"
+        title: "API Basejump: Timestamp microservice",
+        author: "Tiago Valverde"
     });
 });
-
-
-
-
-
 
 
 // GET - JSON return that formats unix and unix timestamps
